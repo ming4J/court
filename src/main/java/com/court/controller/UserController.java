@@ -33,6 +33,7 @@ public class UserController {
 	@RequestMapping(value="/login",method=RequestMethod.POST)
     @ResponseBody
 	public Response<String> login(@RequestBody User user) {
+		//System.err.println(user.toString());
 		return userServices.login(user.getUsername(), user.getPassword());
 	}
 	

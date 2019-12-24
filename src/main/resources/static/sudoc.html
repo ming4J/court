@@ -1,0 +1,168 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>诉讼文书管理</title>
+<link rel="stylesheet" type="text/css" href="css/css.css" />
+</head>
+
+<body>
+	<div id="pageAll">
+		<div class="pageTop">
+			<div class="page">
+				<span><a href="user.html">首页</a>&nbsp;-&nbsp;</span>&nbsp;诉讼文书管理
+			</div>
+		</div>
+		<div class="page" id="app">
+				<!--创建文件夹-->
+			<div class="box">
+	          <form method="post">
+		      <div class="leftbox">新建诉讼文书：<input type="text" name="newdir" v-model="tit" /></div>
+	          </form>	
+	          <div class="clear"></div>
+
+	          <!--上传文件-->
+	          <form method="post" action="?folder=" enctype="multipart/form-data">
+		      <div class="leftbox"><input type="file" name="file" class="file" @change="getFile"></div>
+		      <input class="sub" type="submit" value="上传" @click="submit" />
+	          </form>
+	          <div class="clear"></div>
+	        </div>
+
+	          <!--目录列表-->
+				<div class="conShow">
+					<table border="1" cellspacing="0" cellpadding="0">
+						<tr>
+							<td width="100px" class="tdColor tdC">序号</td>
+							<td width="700px" class="tdColor">诉讼文书标题</td>
+							<td width="400px" class="tdColor">操作</td>
+						</tr>
+						<tr height="40px" v-for="su in sus">
+							<td>{{su.serialkey}}</td>
+							<td>{{su.sutit}}</td>
+							<td><a href="#" @click="down(su.serialkey,su.sutit)">下载</a> | <a href="#" @click="dele(su.serialkey)">删除</a></td>
+						</tr>
+					</table>
+				</div>
+				<!-- 目录列表 end-->
+			</div>
+			<!-- 页面样式end -->
+		</div>
+
+	</div>
+
+
+	<!-- 删除弹出框 -->
+	<div class="banDel">
+		<div class="delete">
+			<div class="close">
+				<a><img src="img/shanchu.png" /></a>
+			</div>
+			<p class="delP1">你确定要删除此文书吗？</p>
+			<p class="delP2">
+				<a href="#" class="ok yes">确定</a><a class="ok no">取消</a>
+			</p>
+		</div>
+	</div>
+	<!-- 删除弹出框  end-->
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+<script type="text/javascript">
+	new Vue({
+		el: '#app',
+		data() {
+			return {
+				sus:[],
+				tit: '',
+				file: null
+			}
+		},
+		beforeMount: function() {
+			
+			this.$http.get(`http://localhost:8080/sus/query`)
+			.then(
+				res =>{
+				let data = res.body;
+				if(data.code === '200') {
+					let list = data.list;
+					this.sus = list;
+				}else {
+					alert(data.desc);
+				}
+			},
+			res => {
+				alert(`网络异常`);
+			});
+
+		},
+		methods: {
+			getFile: function(e) {
+				this.file = e.target.files[0];
+			},
+			down: function(id,tit) {
+				this.$http.get(`http://localhost:8080/sus/download/${id}`)
+				.then(
+					res =>{
+					  let blob = new Blob([res.body], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+                      let objectUrl = URL.createObjectURL(blob);
+                      let a = document.createElement('a');
+                      document.body.appendChild(a);
+                      a.setAttribute('style', 'display:none');
+                      a.setAttribute('href', objectUrl);
+                      a.setAttribute('download', tit);
+                      a.click();
+                      URL.revokeObjectURL(objectUrl);
+					},
+					res => {
+						alert(`网络异常`);
+					}
+				);
+			},
+			submit(e) {
+				e.preventDefault();
+				if(!this.tit) {
+					alert('诉讼书名称不能为空');
+					return;
+				}
+				if(!this.file) {
+					alert('请选择文件');
+					return;
+				}
+				let f = new FormData();
+				f.append('file',this.file);
+				this.$http.post(`http://localhost:8080/sus/upload/${this.tit}`,f)
+				.then(
+					res => {
+						let data = res.body;
+						if(data.code === '200') {
+							alert('添加成功');
+						}else {
+							alert(data.desc);
+						}
+					},
+					res => {
+						alert(`网络异常`);
+					}
+				);
+			},
+			dele: function(id) {
+				this.$http.get(`http://localhost:8080/sus/delete/${id}`)
+				.then(
+					res => {
+						let data = res.body;
+						if(data.code === '200') {
+							alert('删除成功');
+						}else {
+							alert(data.desc);
+						}
+					},
+					res => {
+						alert(`网络异常`);
+					}
+				)
+			}
+		}
+	});
+
+</script>
+</html>

@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>添加用户</title>
+<link rel="stylesheet" type="text/css" href="css/css.css" />
+<script type="text/javascript" src="js/jquery.min.js"></script>
+</head>
+<body>
+	<div id="pageAll">
+		<div class="pageTop">
+			<div class="page">
+				<span><a href="user.html">首页</a></span>&nbsp;-&nbsp;添加员工
+			</div>
+		</div>
+		<div class="page" id="app">
+			<!-- 会员注册页面样式 -->
+			<div class="banneradd bor">
+				<div class="baTopNo">
+					<span>添加员工</span>
+				</div>
+				<div class="baBody">
+					<div class="bbD">
+						账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号：&nbsp;<input type="text" class="input3" v-model="user.username" />
+					</div>
+					<div class="bbD">
+						密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码：&nbsp;<input type="password" v-model="user.password"
+							class="input3" />
+					</div>
+					<div class="bbD">
+						电子邮箱：<input type="password" v-model="user.email"
+							class="input3" />
+					</div>
+					<div class="bbD">
+						<p class="bbDP">
+							<button @click="add" class="btn_ok btn_yes" href="#">提交</button>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- 添加管理员页面样式end -->
+		</div>
+	</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+<script>
+  new Vue({
+	  el: '#app',
+	  data() {
+		  return {
+			  user: {
+				username: '',
+				password: '',
+				email: ''
+			  }
+		  }
+	  },
+	  methods: {
+		  add: function() {
+			if(!this.user.username) {
+				alert('用户名不能为空');
+				return;
+			}
+			if(!this.user.password) {
+				alert('密码不能为空');
+				return;
+			}
+			if(!this.user.email) {
+				alert('邮箱不能为空');
+				return;
+			}
+			this.$http.post(`http://localhost:8080/user/register`,this.user)
+			.then(
+				res =>{
+					let data = res.body;
+					if(data.code === '200') {
+						//window.location.href = `admin.html`;
+						alert('添加成功');
+					}else {
+						alert(data.desc);
+					}
+				},
+				res =>{
+					alert(`网络异常`);
+				}
+			);
+		  }
+	  }
+  });
+</script>
+</html>

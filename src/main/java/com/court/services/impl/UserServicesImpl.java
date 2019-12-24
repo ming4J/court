@@ -25,7 +25,9 @@ public class UserServicesImpl implements UserServices{
 		Response<String> response = new Response<String>();
 		try {
 			int count = userMapper.login(username, password);
-			if(count <= 0) throw new Exception("用户名不存在或密码错误");
+			if(count <= 0) {
+				throw new Exception("用户名不存在或密码错误");
+			}
 		} catch (Exception e) {
 			response.setCode("400");
 			response.setDesc(e.getMessage());

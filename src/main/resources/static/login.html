@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>登录-中华人民共和国最高人民法院</title>
+</head>
+<style>
+body{background-position:0 0px;font-family:"Microsoft YaHei",Arial,"";font-size:14px;color:#2f2f2f;overflow-x:hidden;margin:0; padding:0;}
+     ul,.li{list-style:none;} 
+     a{text-decoration:none;}
+     #grey{background:#eeeeee;width: 100%;height:1300px;}
+     #bc{position: absolute;left:270px;top:0px;background: #e97a05;width: 850px;height:400px;}
+     #title{position: absolute;left:0px;top:0px;}
+     #tle{position: absolute;left:0px;top:100px;}
+     #one{position: absolute;left:395px;top:100px;width: 333px;height: 295px;background:#fbf5ca;}
+     #one div{margin-top: 10px;margin-left: 40px;}
+     #one .mid{margin-top: 10px;margin-left:90px;}
+     #one .reg{color:#4e9beb;}
+     #one .mid input{width:25px; height:20px;}
+     #one .forget{color:#555555; font-size:10px;text-align:right;}
+     #one input{width:120px; height: 15px; z-index: 1;text-align:left; margin-left:5px; background:#ffffff}
+     #one .btn{position:absolute;width:89px;height:33px;margin-left: 120px;margin-top:20px;}
+</style>
+<body>
+<div id="grey">
+<div id="bc">
+<div id="title">
+	<a href="#"><img src="images/title.png" width="730" height="101"  alt=""/></a>
+</div>
+<div id="tle">
+	<a href="#"><img src="images/login-bc.png" width="395" height="300"  alt=""/></a>
+</div>
+<div id="one">
+	<a href="#"><img src="images/login.png" width="333" height="89"  alt=""/></a><br>
+	<div>
+    账&nbsp;&nbsp;&nbsp;号:&nbsp;<input type=text name="t1" v-model="username"><br> 
+    </div>
+	<div>
+    密&nbsp;&nbsp;&nbsp;码:&nbsp;<input type=password name="t2" v-model="password">&nbsp;&nbsp;<a class="reg" href="register.html">去注册?</a>
+    </div>
+    <div class="mid">
+    <input type="checkbox" value="记住"><a class="forget" href="#">记住用户名</a>
+    </div>
+    <div class="btn">
+	<a @click="sub"><img src="images/log.png" width="89" height="33"  alt=""/></a><br>
+    </div>
+</div>
+</div>
+</div>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+<script>
+
+     new Vue({
+         el: '#one',
+         data() {
+           return {
+            username: '',
+            password: ''
+           }
+         },
+         methods: {
+             sub: function(e) {
+                if(!this.username) {
+                    alert('请输入用户名');
+                    return;
+                }
+                if(!this.password) {
+                    alert('请输入密码');
+                    return;
+                }
+                this.$http.post(`http://localhost:8080/user/login`,{username: this.username,password: this.password})
+                .then(
+                    res => {
+                        let data = res.body;
+                        if(data.code === '200') {
+                            if(this.username === 'admin') {
+                                window.location.href = `admin.html`;
+                            }else {
+                                window.location.href = `index.html`;
+                            }
+                        }else {
+                            alert(data.desc);
+                        }
+                    },res => {
+                        alert(`网络异常`);
+                    });
+
+             }
+         }
+     });
+</script>

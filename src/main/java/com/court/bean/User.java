@@ -46,5 +46,14 @@ public class User {
 	public void setSerialkey(String serialkey) {
 		this.serialkey = serialkey;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "User{" +
+				"serialkey='" + serialkey + '\'' +
+				", username='" + username + '\'' +
+				", password='" + password + '\'' +
+				", email='" + email + '\'' +
+				'}';
+	}
 }

@@ -1,0 +1,160 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>裁判文书管理</title>
+<link rel="stylesheet" type="text/css" href="css/css.css" />
+</head>
+
+<body>
+	<div id="pageAll">
+		<div class="pageTop">
+			<div class="page">
+				<span><a href="user.html">首页</a>&nbsp;-&nbsp;</span>&nbsp;裁判文书管理
+			</div>
+		</div>
+		<div class="page" id="app">
+		        <div class="conform">
+					<form>
+						<div class="cfD">
+							<button class="userbtn"><a href="cpadd.html">新建裁判文书</button>
+						</div>
+					</form>
+				</div>
+	          <!--目录列表-->
+				<div class="conShow">
+					<table border="1" cellspacing="0" cellpadding="0">
+						<tr>
+							<td width="200px" class="tdColor tdC">序号</td>
+							<td width="2200px" class="tdColor">裁判文书标题</td>
+							<td width="600px" class="tdColor">案号</td>
+							<td width="300px" class="tdColor">日期</td>
+							<td width="400px" class="tdColor">操作</td>
+						</tr>
+						<tr height="40px" v-for="cp in cps">
+							<td>{{cp.serialkey}}</td>
+							<td>{{cp.cptit}}</td>
+							<td>{{cp.cpah}}</td>
+							<td>{{cp.cpdate}}</td>
+							<td>
+								<a href="#" style="position: relative;overflow: hidden;display: block;">
+								上传
+								<input type="file" @change="submit(cp.cptit,$event)" style="opacity: 0;position:absolute;right:0;top:0;height:19px;width:32px;"/>
+								</a><a href="#" @click="down(cp.serialkey,cp.cptit)">下载</a> | <a href="#" @click="dele(cp.serialkey)">删除</a></td>
+						</tr>
+					</table>
+				</div>
+				<!-- 目录列表 end-->
+			</div>
+			<!-- 页面样式end -->
+		</div>
+
+	</div>
+
+
+	<!-- 删除弹出框 -->
+	<div class="banDel">
+		<div class="delete">
+			<div class="close">
+				<a><img src="img/shanchu.png" /></a>
+			</div>
+			<p class="delP1">你确定要删除此文书吗？</p>
+			<p class="delP2">
+				<a href="#" class="ok yes">确定</a><a class="ok no">取消</a>
+			</p>
+		</div>
+	</div>
+	<!-- 删除弹出框  end-->
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+<script type="text/javascript">
+	new Vue({
+		el: '#app',
+		data() {
+			return {
+				cps:[]
+			}
+		},
+		beforeMount: function() {
+			
+			this.$http.get(`http://localhost:8080/cp/query`)
+			.then(
+				res =>{
+				let data = res.body;
+				if(data.code === '200') {
+					let list = data.list;
+					list.map((ls)=>{
+						ls.cpdate = ls.cpdate.split('T')[0];
+					});
+					this.cps = list;
+				}else {
+					alert(data.desc);
+				}
+			},
+			res => {
+				alert(`网络异常`);
+			});
+
+		},
+		methods: {
+		dele: function(id) {
+				this.$http.get(`http://localhost:8080/cp/delete/${id}`)
+				.then(
+					res => {
+						let data = res.body;
+						if(data.code === '200') {
+							alert('删除成功');
+						}else {
+							alert(data.desc);
+						}
+					},
+					res => {
+						alert(`网络异常`);
+					}
+				)
+			},
+			submit: function(id,e) {
+				console.dir(e);
+				const file=e.target.files[0];
+				let f = new FormData();
+				f.append('file',file);
+				this.$http.post(`http://localhost:8080/cp/upload/${id}`,f)
+				.then(
+					res => {
+						let data = res.body;
+						if(data.code === '200') {
+							alert('添加成功');
+						}else {
+							alert(data.desc);
+						}
+					},
+					res => {
+						alert(`网络异常`);
+					}
+				);
+			},
+			down: function(id,tit) {
+				this.$http.get(`http://localhost:8080/cp/download/${id}`)
+				.then(
+					res =>{
+					  let blob = new Blob([res.body], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+                      let objectUrl = URL.createObjectURL(blob);
+                      let a = document.createElement('a');
+                      document.body.appendChild(a);
+                      a.setAttribute('style', 'display:none');
+                      a.setAttribute('href', objectUrl);
+                      a.setAttribute('download', tit);
+                      a.click();
+                      URL.revokeObjectURL(objectUrl);
+					},
+					res => {
+						alert(`网络异常`);
+					}
+				);
+			}
+
+	}
+	});
+
+</script>
+</html>
